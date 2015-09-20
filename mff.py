@@ -5,39 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import dateutil.relativedelta as relativedelta
-
-# Asset names
-def get_asset_prices():
-    asset_tags = ["YAHOO/INDEX_GSPC", "YAHOO/INDEX_HSI","YAHOO/INDEX_FCHI","YAHOO/INDEX_GDAXI","NIKKEI/INDEX","YAHOO/INDEX_FTSEMIB_MI","YAHOO/INDEX_GSPTSE","YAHOO/INDEX_IBEX","YAHOO/INDEX_STI"]
-    
-    asset_names= ["US","HK","FR","BD","JP","IT","CA","ES","SG"]
-    
-    # Get asset returns in a list of dataframes
-    # for each day get 3m/1m/12m signals 
-    # for each day build portfolio using singal
-    # compute pnl for signal
-    
-    asset_prices = []
-    
-    
-    for asset_tag in asset_tags:
-        asset_prices_df = Quandl.get(asset_tag, authtoken="WnzSYJ9RpDF2HuzQ9pZ2")
-        print asset_prices_df.column
-        if "Adjusted Close" in asset_prices_df.columns:
-            asset_prices.append(asset_prices_df["Adjusted Close"])
-        else:
-            asset_prices.append(asset_prices_df["Close Price"])
-    
-    df_prices =pd.concat(asset_prices , axis=1)
-    df_prices.columns = asset_names
-    df_prices=df_prices.truncate(before='1/1/2010', after='12/31/2014')
-    
-    df_returns = df_prices.pct_change()
-    df_returns=df_returns.fillna(0)
-    df_prices=df_prices.fillna(method='pad')
- 
-    
-    return df_prices, df_returns
+from returns import get_returns
+from risk_model import get_cov
 
 def create_mff_signal(df_prices, period):
     #computer  signal
@@ -72,10 +41,10 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
        
-    df_prices, df_returns = get_asset_prices()
+    df_prices, df_returns = get_returns()
     create_mff_signal(df_prices,30)
     
-    df_prices.plot()
+     
     plt.show()
  
 
