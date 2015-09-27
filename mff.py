@@ -5,33 +5,37 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import dateutil.relativedelta as relativedelta
+import risk_model as risk_model
 from returns import get_returns
+import factors as factors
 from risk_model import get_cov
+from factors import *
 
-def create_mff_signal(df_prices, period):
-    #computer  signal
-    period = 30 #days
-    start_date = df_prices.index[1]
-    end_date = df_prices.index[-1]
+
+def backtest(startdate,enddate, strategy):
     
-    df_mff_signal = pd.DataFrame(index=df_prices.index, columns=df_prices.columns)
-    df_mff_signal = df_mff_signal.fillna(0) # with 0s rather than NaNs
+    dates= pd.date_range(startdate, enddate)
     
-    for date in df_prices.index:
-        prev_date=date - relativedelta.relativedelta(days=period)
-        if prev_date in df_prices.index:
-            df_mff_signal.ix[date]= (df_prices.ix[date] /df_prices.ix[prev_date])-1
-        else:
-            df_mff_signal.ix[date]= np.NaN
+    # get returns and prices   
+    df_prices, df_returns = get_returns()
+    
+       
+    for date in dates:
+        ## build cov 
+        df_static_cov= risk_model.get_cov(df_returns, date)
+        df_static_cov.to_clipboard()
         
+        # build factor
+        df_ret = factors.get_factor(df_prices,date)
+        print df_ret
+        
+        #create_mom_3m_factor(df_prices)
     
-    df_mff_signal = df_mff_signal[np.invert(pd.isnull(df_mff_signal).any(axis=1))]
-    
-    df_mff_signal.plot()
-    plt.show()
+        # build portfolio
 
-def backtest(signals):
-    x=1
+
+
+
 
 class Usage(Exception):
     def __init__(self, msg):
@@ -40,10 +44,9 @@ class Usage(Exception):
 def main(argv=None):
     if argv is None:
         argv = sys.argv
-       
-    df_prices, df_returns = get_returns()
-    create_mff_signal(df_prices,30)
+    #
     
+    backtest ("2014-1-1","2014-1-5", "")
      
     plt.show()
  

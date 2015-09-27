@@ -7,8 +7,11 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import dateutil.relativedelta as relativedelta
 import os as os
+import math
 
-def get_cov(df_returns):
+def get_cov(df_returns, date):
     
-    df_cov=df_returns.cov()
+    cov_start_date = date - relativedelta.relativedelta(years=1)
+    df_cov = df_returns.truncate(after=date, before = cov_start_date).cov() * math.sqrt(252)
+    #df_cov=df_returns.cov()
     return df_cov
